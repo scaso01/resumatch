@@ -1,0 +1,31 @@
+JORDAN AVERY
+jordan.avery@example.com | (555) 010-0142 | Austin, TX
+linkedin.com/in/jordanavery | github.com/jordanavery
+
+SUMMARY
+Backend engineer with 6 years building payment and data platforms.
+
+EXPERIENCE
+
+Senior Backend Engineer, Northwind Systems (2022-2026)
+- Led migration of a monolith into 12 services, cutting deploy time 74%
+  from 45 minutes to 12 minutes across 8 teams.
+- Reduced p99 checkout latency from 820ms to 190ms by rewriting the
+  settlement path and adding a write-through cache.
+- Designed an idempotency layer that eliminated 99.8% of duplicate charges,
+  saving an estimated $310,000 in annual chargeback losses.
+- Mentored 4 engineers; 2 were promoted within 18 months.
+
+Backend Engineer, Cobalt Analytics (2019-2022)
+- Built an ETL pipeline processing 40 million events per day on 3 nodes.
+- Automated the regression suite, raising coverage from 31% to 88%.
+- Negotiated a vendor contract that saved $120,000 annually.
+- Migrated 14 legacy cron jobs to an orchestrated DAG, removing 22 hours
+  of manual operations work per month.
+
+EDUCATION
+B.S. Computer Science, State University, 2019
+
+SKILLS
+Python, Go, PostgreSQL, Redis, Kafka, Docker, Kubernetes, Terraform,
+AWS, FastAPI, pytest, SQL, Git, Linux, CI/CD, distributed systems

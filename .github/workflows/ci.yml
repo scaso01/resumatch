@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      # language-tool-python shells out to LanguageTool, which needs a JRE.
+      # Without it the grammar component of the Presentation score is skipped.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install
+        run: |
+          pip install -e ".[dev,dashboard]"
+          python -m spacy download en_core_web_sm
+
+      - name: Lint
+        run: ruff check resumatch tests
+
+      - name: Test
+        run: pytest tests/ -q

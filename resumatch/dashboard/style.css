@@ -1,0 +1,56 @@
+/* ResuMatch Dashboard Styles */
+
+.score-card {
+    background: #1e1e2e;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.score-value {
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.score-label {
+    font-size: 16px;
+    color: #94a3b8;
+    margin-bottom: 12px;
+}
+
+.zone-badge {
+    display: inline-block;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 4px 16px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+}
+
+/* Tighten Streamlit defaults */
+.stMetric {
+    background: #1e1e2e;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+/* The dark card above needs light text. Without this the label and value keep
+   Streamlit's default near-black, which is unreadable on #1e1e2e. */
+.stMetric [data-testid="stMetricLabel"],
+.stMetric [data-testid="stMetricLabel"] p {
+    color: #94a3b8;
+}
+
+.stMetric [data-testid="stMetricValue"] {
+    color: #f8fafc;
+}
+
+div[data-testid="stExpander"] {
+    border: 1px solid #334155;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}

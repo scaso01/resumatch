@@ -1,0 +1,36 @@
+services:
+  api:
+    build:
+      context: .
+      network: host
+    container_name: resumatch-api
+    command: uvicorn resumatch.api:app --host 0.0.0.0 --port 8510
+    ports:
+      - "8510:8510"
+    volumes:
+      - resumatch-data:/app/data
+    mem_limit: 2g
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://127.0.0.1:8510/api/v1/health', timeout=8).raise_for_status()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  dashboard:
+    build: .
+    container_name: resumatch-dashboard
+    command: streamlit run resumatch/dashboard/app.py --server.port 8511 --server.address 0.0.0.0 --server.headless true
+    ports:
+      - "8511:8511"
+    environment:
+      - RESUMATCH_API_URL=http://api:8510
+    depends_on:
+      api:
+        condition: service_healthy
+    mem_limit: 512m
+    restart: unless-stopped
+
+volumes:
+  resumatch-data:

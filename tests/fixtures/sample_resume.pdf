@@ -1,0 +1,98 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1546 >>
+stream
+BT
+/F1 10 Tf
+72 720 Td
+13 TL
+(JORDAN AVERY) Tj
+T*
+(jordan.avery@example.com | \(555\) 010-0142 | Austin, TX) Tj
+T*
+(linkedin.com/in/jordanavery | github.com/jordanavery) Tj
+T*
+() Tj
+T*
+(SUMMARY) Tj
+T*
+(Backend engineer with 6 years building payment and data platforms.) Tj
+T*
+() Tj
+T*
+(EXPERIENCE) Tj
+T*
+() Tj
+T*
+(Senior Backend Engineer, Northwind Systems \(2022-2026\)) Tj
+T*
+(- Led migration of a monolith into 12 services, cutting deploy time 74%) Tj
+T*
+(  from 45 minutes to 12 minutes across 8 teams.) Tj
+T*
+(- Reduced p99 checkout latency from 820ms to 190ms by rewriting the) Tj
+T*
+(  settlement path and adding a write-through cache.) Tj
+T*
+(- Designed an idempotency layer that eliminated 99.8% of duplicate charges,) Tj
+T*
+(  saving an estimated $310,000 in annual chargeback losses.) Tj
+T*
+(- Mentored 4 engineers; 2 were promoted within 18 months.) Tj
+T*
+() Tj
+T*
+(Backend Engineer, Cobalt Analytics \(2019-2022\)) Tj
+T*
+(- Built an ETL pipeline processing 40 million events per day on 3 nodes.) Tj
+T*
+(- Automated the regression suite, raising coverage from 31% to 88%.) Tj
+T*
+(- Negotiated a vendor contract that saved $120,000 annually.) Tj
+T*
+(- Migrated 14 legacy cron jobs to an orchestrated DAG, removing 22 hours) Tj
+T*
+(  of manual operations work per month.) Tj
+T*
+() Tj
+T*
+(EDUCATION) Tj
+T*
+(B.S. Computer Science, State University, 2019) Tj
+T*
+() Tj
+T*
+(SKILLS) Tj
+T*
+(Python, Go, PostgreSQL, Redis, Kafka, Docker, Kubernetes, Terraform,) Tj
+T*
+(AWS, FastAPI, pytest, SQL, Git, Linux, CI/CD, distributed systems) Tj
+T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1909
+%%EOF

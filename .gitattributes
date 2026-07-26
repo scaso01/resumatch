@@ -1,0 +1,5 @@
+# Test fixtures are binary. Without this, git's autocrlf rewrites LF to CRLF
+# inside the PDF on Windows checkouts and pdfplumber can no longer read it.
+*.pdf binary
+*.docx binary
+*.png binary

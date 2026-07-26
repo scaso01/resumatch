@@ -1,0 +1,68 @@
+# ResuMatch Configuration
+# Scoring weights, thresholds, and model config
+
+scoring:
+  weights:
+    impact: 40
+    presentation: 20
+    competencies: 40
+
+  zones:
+    green: 85
+    yellow: 50
+    # Below yellow = red
+
+  impact:
+    action_verb_target: 0.90
+    quantification_target: 0.60
+    specificity_target: 0.70
+
+  presentation:
+    ideal_pages_min: 1
+    ideal_pages_max: 2
+    required_sections:
+      - experience
+      - education
+      - skills
+    grammar_penalty_per_error: 2
+    grammar_penalty_cap: 20
+
+  competencies:
+    categories:
+      - technical
+      - leadership
+      - communication
+      - analytical
+      - domain
+    min_skills_for_full_score: 10
+    min_categories_for_full_score: 4
+
+matching:
+  keyword_top_n: 20
+  semantic_threshold: 0.45
+  keyword_weight: 0.5
+  semantic_weight: 0.5
+
+llm:
+  # Any OpenAI-compatible endpoint (llama-server, LM Studio, Ollama, vLLM).
+  # Optional: scoring, matching and feedback all work with the LLM disabled.
+  # Override without editing this file: RESUMATCH_LLM__BASE_URL=...
+  base_url: "http://localhost:8080"
+  model: "qwen3-coder-abliterated"
+  timeout_seconds: 120
+  max_tokens: 2048
+  temperature: 0.3
+  enabled: true
+
+api:
+  host: "0.0.0.0"
+  port: 8510
+  max_upload_mb: 10
+  # Add your own with RESUMATCH_API__CORS_ORIGINS=http://a:1,http://b:2
+  cors_origins:
+    - "http://localhost:8511"
+
+dashboard:
+  port: 8511
+  # The dashboard reads its API base URL from the RESUMATCH_API_URL env var
+  # (default http://localhost:8510), which docker-compose sets to http://api:8510.
