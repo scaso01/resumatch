@@ -77,7 +77,7 @@ If it says 3.11 or lower, or "command not found", install Python from
 ### Step 1 — get the code
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/resumatch.git
+git clone https://github.com/scaso01/resumatch.git
 cd resumatch
 ```
 
