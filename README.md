@@ -5,7 +5,7 @@ matches a job description — entirely on your own machine.**
 
 [![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13-blue)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-343%20passing-brightgreen)](#run-the-tests)
+[![CI](https://github.com/scaso01/resumatch/actions/workflows/ci.yml/badge.svg)](https://github.com/scaso01/resumatch/actions/workflows/ci.yml)
 [![Offline](https://img.shields.io/badge/runs-100%25%20offline-lightgrey)](#faq)
 
 ResuMatch is an open-source resume scoring engine, modelled on the approach
@@ -300,7 +300,7 @@ python -m spacy download en_core_web_sm
 pytest tests/ -q
 ```
 
-343 tests, about 10 seconds, no skips.
+344 tests, about 10 seconds, no skips.
 
 They aren't only unit tests of the arithmetic:
 
