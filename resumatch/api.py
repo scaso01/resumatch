@@ -161,10 +161,10 @@ async def improve(resume: ParsedResume):
     """Identify weak bullets and rewrite them via LLM."""
     try:
         from resumatch.features import STRONG_VERBS, WEAK_VERBS
-        from resumatch.llm import get_client
+        from resumatch.llm import get_client, is_llm_available
 
         client = get_client()
-        available = await client.health_check()
+        available = await is_llm_available()
 
         # Gather experience bullets with their section name
         bullet_sections: list[tuple[str, str]] = []

@@ -381,3 +381,24 @@ class TestModuleLevelConvenience:
 
         # Clean up
         llm_module._client = None
+
+    async def test_disabled_in_config_is_unavailable_without_probing(self, monkeypatch):
+        """llm.enabled=false must win even when a server is reachable.
+
+        It didn't, so /health reported the LLM as available and /improve
+        called it regardless of the setting.
+        """
+        import resumatch.llm as llm_module
+
+        mock_client = MagicMock(spec=LLMClient)
+        mock_client.health_check = AsyncMock(return_value=True)
+        llm_module._client = mock_client
+        monkeypatch.setitem(llm_module.CONFIG, "llm", {"enabled": False})
+
+        result = await is_llm_available()
+
+        assert result is False
+        mock_client.health_check.assert_not_awaited()
+
+        # Clean up
+        llm_module._client = None

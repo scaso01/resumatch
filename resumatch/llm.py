@@ -230,5 +230,12 @@ def get_client() -> LLMClient:
 
 
 async def is_llm_available() -> bool:
-    """Check if the LLM server is reachable."""
+    """Whether the LLM can be used: switched on in config *and* reachable.
+
+    Reachability alone is not enough. Setting llm.enabled to false used to
+    change nothing here, so /health still advertised the LLM as available and
+    /improve still called it.
+    """
+    if not CONFIG.get("llm", {}).get("enabled", False):
+        return False
     return await get_client().health_check()
