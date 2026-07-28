@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from resumatch.config import CONFIG, logger
 from resumatch.models import (
@@ -25,16 +26,37 @@ from resumatch.models import (
 )
 
 
+class MatchRequest(BaseModel):
+    """Body for /api/v1/match.
+
+    Both fields travel in one JSON body. They cannot be a body model plus a
+    Form field: declaring any Form parameter makes FastAPI expect the whole
+    request to be form-encoded, which left the resume permanently unsuppliable.
+    """
+
+    resume: ParsedResume
+    jd_text: str
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: preload spaCy and embedding models."""
+    """Report model state at startup.
+
+    The embedding models are not preloaded here. They are large and only the
+    JD-matching endpoints need them, so they load on first use and this only
+    reports which are already resident.
+    """
     logger.info("ResuMatch API starting up...")
     try:
         from resumatch.matching import models_loaded
         if models_loaded():
-            logger.info("Embedding models loaded.")
+            logger.info("Embedding models already resident.")
+        else:
+            logger.info(
+                "Embedding models will load on the first JD-matching request."
+            )
     except Exception as e:
-        logger.warning("Could not preload models: %s", e)
+        logger.warning("Could not determine model state: %s", e)
     yield
     logger.info("ResuMatch API shutting down.")
 
@@ -146,11 +168,11 @@ async def score(resume: ParsedResume):
 
 
 @app.post("/api/v1/match", response_model=JDMatchResult)
-async def match(resume: ParsedResume, jd_text: str = Form(...)):
+async def match(request: MatchRequest):
     """JD match only on a pre-parsed resume."""
     try:
         from resumatch.matching import match_jd
-        return match_jd(resume, jd_text)
+        return match_jd(request.resume, request.jd_text)
     except Exception as e:
         logger.error("Matching failed: %s", e)
         raise HTTPException(500, f"Matching failed: {e}")

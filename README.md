@@ -73,6 +73,10 @@ If it says 3.11 or lower, or "command not found", install Python from
 > is skipped and everything else works normally. If you want grammar checking,
 > install any JRE 8+ (`sudo apt install default-jre`,
 > `brew install openjdk`, or [adoptium.net](https://adoptium.net/) on Windows).
+>
+> With Java present, the first score you run downloads LanguageTool itself,
+> about 260 MB, and caches it for every run after. Expect that one request to
+> take noticeably longer than the rest.
 
 ### Step 1 — get the code
 

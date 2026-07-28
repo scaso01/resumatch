@@ -136,6 +136,35 @@ class TestScoreEndpoint:
         assert "overall" in data
 
 
+class TestMatchEndpoint:
+    """The endpoint was unreachable: a Pydantic body model was declared next to
+    a Form field, so FastAPI wanted the whole request form-encoded and the
+    resume could never be supplied. Every call returned 422."""
+
+    def test_match_accepts_resume_and_jd(self, client):
+        mock_match = JDMatchResult(overall_match=0.75, keyword_match=0.8, semantic_match=0.7)
+        with patch("resumatch.matching.match_jd", return_value=mock_match):
+            resp = client.post(
+                "/api/v1/match",
+                json={
+                    "resume": {
+                        "raw_text": "John Smith\nEXPERIENCE\n- Led team",
+                        "sections": [],
+                        "contact": {},
+                        "page_count": 1,
+                        "word_count": 5,
+                    },
+                    "jd_text": "Looking for a Python developer",
+                },
+            )
+        assert resp.status_code == 200, resp.text
+        assert resp.json()["overall_match"] == 0.75
+
+    def test_match_rejects_a_missing_jd(self, client):
+        resp = client.post("/api/v1/match", json={"resume": {"raw_text": "x"}})
+        assert resp.status_code == 422
+
+
 class TestAnalyzeWithJDEndpoint:
     def test_analyze_with_jd(self, client, mock_parsed_resume, mock_score, mock_feedback):
         mock_match = JDMatchResult(overall_match=0.75, keyword_match=0.8, semantic_match=0.7)
