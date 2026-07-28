@@ -12,6 +12,11 @@ import re
 from resumatch.config import logger
 from resumatch.models import ResumeSection
 
+# Populated on first use by _get_language_tool(). None means LanguageTool could
+# not be started, so grammar checking falls back to formatting heuristics only.
+_LANGUAGE_TOOL = None
+_LANGUAGE_TOOL_STARTED = False
+
 # ---------------------------------------------------------------------------
 # Action Verb Sets
 # ---------------------------------------------------------------------------
@@ -209,12 +214,108 @@ def analyze_specificity(bullets: list[str]) -> float:
     return result
 
 
-def check_grammar(text: str) -> list[str]:
-    """Basic grammar checks (stub -- real implementation needs language-tool-python).
+def _get_language_tool():
+    """Return a shared LanguageTool instance, or None if it cannot be started.
 
-    Current checks:
+    LanguageTool is a Java program that language-tool-python downloads and runs
+    locally. It is unavailable when there is no JRE on PATH, or when the
+    one-time download cannot complete. Either way grammar checking degrades to
+    the formatting heuristics below rather than failing the whole score.
+    """
+    global _LANGUAGE_TOOL, _LANGUAGE_TOOL_STARTED
+    # ponytail: process-lifetime singleton -- starting the Java server costs a
+    # few seconds, so it must not happen per request.
+    if _LANGUAGE_TOOL_STARTED:
+        return _LANGUAGE_TOOL
+
+    _LANGUAGE_TOOL_STARTED = True
+    try:
+        import language_tool_python
+
+        _LANGUAGE_TOOL = language_tool_python.LanguageTool("en-US")
+        logger.debug("LanguageTool started; full grammar checking enabled")
+    except Exception as exc:  # noqa: BLE001 -- any failure means "no grammar checking"
+        logger.warning(
+            "LanguageTool unavailable, so spelling and grammar checks are skipped "
+            "and only formatting consistency is checked. Install a Java runtime to "
+            "enable them. Cause: %s",
+            exc,
+        )
+        _LANGUAGE_TOOL = None
+
+    return _LANGUAGE_TOOL
+
+
+# LanguageTool's spelling rules. Its dictionary is general English, so it does
+# not know most technology names and flags them as misspellings. A resume that
+# names its tools would otherwise be punished for doing so.
+_SPELLING_RULE_PREFIX = "MORFOLOGIK"
+
+# Lowercase tool names carry none of the shape signals in _looks_like_a_name,
+# so they need listing. Only common ones -- an unknown lowercase tool can still
+# be flagged, which is the safer direction to fail in.
+_KNOWN_TECH_WORDS = frozenset({
+    "airflow", "ansible", "celery", "django", "docker", "elasticsearch",
+    "eslint", "fastapi", "flask", "grafana", "graphql", "gunicorn", "jenkins",
+    "jupyter", "kafka", "kibana", "kubectl", "kubernetes", "logstash",
+    "matplotlib", "mongodb", "mysql", "nginx", "nodejs", "numpy", "pandas",
+    "podman", "postgres", "postgresql", "prometheus", "pydantic", "pytest",
+    "redis", "sklearn", "scipy", "sqlalchemy", "sqlite", "terraform",
+    "typescript", "uvicorn", "webpack",
+})
+
+
+def _at_sentence_start(text: str, offset: int) -> bool:
+    """True when the token at `offset` opens a line, a bullet, or a sentence."""
+    prefix = text[:offset]
+    line_start = prefix.rfind("\n") + 1
+    before = prefix[line_start:].lstrip(" \t-*>•")
+    if not before.strip():
+        return True
+    return before.rstrip().endswith((".", "!", "?"))
+
+
+def _looks_like_a_name(token: str, at_sentence_start: bool) -> bool:
+    """True when a flagged token reads as a technology or proper noun.
+
+    Capitalisation is the signal. A capital mid-sentence means a name, so
+    "Redis" and "Northwind" are spared while "Builded" at the start of a
+    bullet is not.
+    """
+    if not token:
+        return False
+    if token.lower() in _KNOWN_TECH_WORDS:
+        return True
+    if any(ch.isdigit() or ch in "./+#_" for ch in token):
+        return True  # S3, CI/CD, C++, C#, Python3
+    if token.isupper():
+        return True  # AWS, SQL, REST
+    if any(ch.isupper() for ch in token[1:]):
+        return True  # FastAPI, PostgreSQL, GraphQL
+    return token[:1].isupper() and not at_sentence_start
+
+
+def _describe_match(text: str, match) -> str:
+    """Render one LanguageTool match as a single human-readable line."""
+    flagged = text[match.offset:match.offset + match.error_length].strip()
+    message = match.message.rstrip(".")
+
+    if flagged and match.replacements:
+        return f'{message}: "{flagged}" -> {match.replacements[0]}'
+    if flagged:
+        return f'{message}: "{flagged}"'
+    return message
+
+
+def check_grammar(text: str) -> list[str]:
+    """Check spelling, grammar, and formatting consistency.
+
+    Spelling and grammar come from LanguageTool via language-tool-python, which
+    needs a Java runtime. When it is unavailable those checks are skipped and
+    only the formatting checks below run -- see _get_language_tool.
+
+    Formatting checks (always run):
     - Double spaces
-    - Missing period at end of bullet
     - Inconsistent bullet endings (mix of period/no-period)
     """
     if not text or not text.strip():
@@ -242,6 +343,18 @@ def check_grammar(text: str) -> list[str]:
                 f"Inconsistent bullet endings: {period_count}/{len(bullet_lines)} "
                 "end with a period (should be all or none)"
             )
+
+    tool = _get_language_tool()
+    if tool is not None:
+        try:
+            for match in tool.check(text):
+                if match.rule_id.startswith(_SPELLING_RULE_PREFIX):
+                    token = text[match.offset:match.offset + match.error_length].strip()
+                    if _looks_like_a_name(token, _at_sentence_start(text, match.offset)):
+                        continue
+                errors.append(_describe_match(text, match))
+        except Exception as exc:  # noqa: BLE001 -- a check failure must not sink the score
+            logger.warning("LanguageTool check failed, skipping grammar errors: %s", exc)
 
     logger.debug("Grammar check: %d error(s) found", len(errors))
     return errors

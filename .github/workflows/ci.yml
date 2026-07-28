@@ -33,6 +33,11 @@ jobs:
           pip install -e ".[dev,dashboard]"
           python -m spacy download en_core_web_sm
 
+      # First use downloads ~260 MB of LanguageTool. Doing it here keeps the
+      # download out of the per-test timeout.
+      - name: Warm up LanguageTool
+        run: python -c "import language_tool_python; language_tool_python.LanguageTool('en-US').close()"
+
       - name: Lint
         run: ruff check resumatch tests
 

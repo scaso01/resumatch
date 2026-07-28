@@ -37,6 +37,22 @@ Measures resume structure and polish.
 **Scoring formula:**
 - Page length: 1.0 if 1-2 pages, 0.5 if 3, 0.3 if 4+
 - Grammar: 100 - (errors × penalty), capped at penalty_cap
+
+**About the grammar check.** Spelling and grammar come from
+[LanguageTool](https://languagetool.org/) running locally through
+`language-tool-python`, which needs a Java runtime. Without Java those checks
+are skipped and only formatting consistency (double spaces, bullet punctuation)
+is measured.
+
+LanguageTool's dictionary is general English, so it does not recognise most
+technology names. Rather than penalise a resume for naming its tools, flagged
+words that read as technology or proper nouns are ignored: anything containing
+a digit or `. / + # _`, anything in all capitals, anything with an internal
+capital, and any capitalised word that is not opening a sentence. So `FastAPI`,
+`AWS`, `CI/CD`, `Redis` and `Northwind` pass, while `recieved` and a
+bullet-opening `Builded` are still caught. The trade-off is deliberate: an
+unrecognised lowercase tool name can still be flagged, which is the safer
+direction to fail in. Grammar and agreement errors are never filtered.
 - Sections: present_required / total_required
 - Contact: filled_fields / total_fields (5)
 - Formatting: heuristic score from consistency checks

@@ -1,9 +1,12 @@
 """Tests for resumatch.features -- action verbs, quantification, specificity, grammar, formatting."""
 
 
+import pytest
+
 from resumatch.features import (
     STRONG_VERBS,
     WEAK_VERBS,
+    _get_language_tool,
     analyze_action_verbs,
     analyze_quantification,
     analyze_specificity,
@@ -254,6 +257,60 @@ class TestCheckGrammar:
         text = "Led a team of engineers\nBuilt a new pipeline\nDeployed the application"
         errors = check_grammar(text)
         assert errors == []
+
+    def test_real_grammar_errors_detected(self):
+        """Bad grammar and spelling must be caught, not silently scored clean.
+
+        Regression guard: check_grammar was once a stub that only looked at
+        whitespace and bullet punctuation, so a resume full of errors scored
+        full marks. Skipped when LanguageTool cannot start (no Java runtime);
+        CI installs a JRE, so this runs there.
+        """
+        if _get_language_tool() is None:
+            pytest.skip("LanguageTool unavailable -- no Java runtime")
+
+        text = "He are a backend engineer. I has built many system. Builded a pipeline."
+        errors = check_grammar(text)
+
+        assert errors, "check_grammar found no errors in deliberately broken text"
+        assert any("Builded" in e for e in errors), f"misspelling not flagged: {errors}"
+
+    def test_clean_prose_still_passes_language_tool(self):
+        """Resume bullets are fragments by design and must not be false-flagged."""
+        if _get_language_tool() is None:
+            pytest.skip("LanguageTool unavailable -- no Java runtime")
+
+        text = (
+            "- Led a team of 8 engineers to deliver a payments platform\n"
+            "- Reduced p99 latency by 43% via query optimization\n"
+            "- Owned CI/CD for 12 microservices"
+        )
+        assert check_grammar(text) == []
+
+    def test_technology_names_are_not_spelling_errors(self):
+        """Naming your tools must not cost you points.
+
+        LanguageTool's dictionary is general English and does not contain most
+        technology names, so an unfiltered spell check flags every one of them.
+        """
+        if _get_language_tool() is None:
+            pytest.skip("LanguageTool unavailable -- no Java runtime")
+
+        text = (
+            "- Built services with FastAPI, Redis, and PostgreSQL on AWS\n"
+            "- Ran pytest and numpy jobs on Kubernetes via kubectl\n"
+            "- Migrated Northwind Systems to GraphQL and CI/CD\n"
+        )
+        assert check_grammar(text) == []
+
+    def test_misspelling_at_bullet_start_still_caught(self):
+        """The name filter keys off mid-sentence capitals, so a capitalised
+        word opening a bullet must still be spell-checked."""
+        if _get_language_tool() is None:
+            pytest.skip("LanguageTool unavailable -- no Java runtime")
+
+        errors = check_grammar("- Builded a pipeline\n- Managed a team\n")
+        assert any("Builded" in e for e in errors), f"missed bullet-start typo: {errors}"
 
 
 # =============================================================================
