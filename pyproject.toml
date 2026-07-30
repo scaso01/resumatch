@@ -21,7 +21,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dashboard = [
-    "streamlit>=1.38.0",
+    # 1.60 is the floor because the dashboard passes width="stretch", the
+    # replacement for use_container_width, which older releases do not accept.
+    # Capped below 2.0 so a major release cannot silently change widget APIs.
+    "streamlit>=1.60.0,<2.0.0",
     "plotly>=5.24.0",
 ]
 dev = [

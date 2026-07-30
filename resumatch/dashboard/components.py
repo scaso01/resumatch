@@ -101,7 +101,7 @@ def render_radar_chart(score: dict) -> None:
         height=300,
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def render_feedback_list(feedback: list[dict]) -> None:

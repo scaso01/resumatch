@@ -60,7 +60,7 @@ def main():
         analyze_btn = st.button(
             "Analyze Resume",
             type="primary",
-            use_container_width=True,
+            width="stretch",
             disabled=uploaded_file is None,
         )
 
@@ -107,7 +107,7 @@ def main():
         st.divider()
 
         # Improve button
-        if st.button("Improve Resume", type="secondary", use_container_width=True):
+        if st.button("Improve Resume", type="secondary", width="stretch"):
             with st.spinner("Identifying weak bullets and generating improvements..."):
                 try:
                     improve_resp = httpx.post(
