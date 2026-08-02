@@ -304,7 +304,7 @@ python -m spacy download en_core_web_sm
 pytest tests/ -q
 ```
 
-344 tests, about 10 seconds, no skips.
+350 tests, about 10 seconds, no skips.
 
 They aren't only unit tests of the arithmetic:
 
