@@ -13,6 +13,8 @@ resume tabs -- lives.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -22,7 +24,7 @@ AppTest = pytest.importorskip(
     "streamlit.testing.v1", reason="streamlit is required for dashboard tests"
 ).AppTest
 
-DASHBOARD = "resumatch/dashboard/app.py"
+DASHBOARD = str(Path(__file__).resolve().parents[1] / "resumatch/dashboard/app.py")
 
 
 def _analyze(fixtures_dir, jd_text: str | None = None) -> dict:

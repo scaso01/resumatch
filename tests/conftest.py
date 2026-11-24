@@ -11,10 +11,17 @@ Provides:
 """
 
 import logging
+import os
+import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+
+# huggingface_hub 2.x downloads models through its own client, which the httpx guard
+# below never sees. Offline mode plus an empty cache keeps every run on the fallback path.
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["HF_HOME"] = tempfile.mkdtemp(prefix="resumatch-hf-")
 
 
 # =============================================================================
