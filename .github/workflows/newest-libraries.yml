@@ -1,0 +1,31 @@
+name: Newest libraries
+
+# CI pins versions (requirements-ci.txt). This weekly run installs the newest allowed
+# versions instead, so a release that breaks a fresh install shows up within a week.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - run: |
+          pip install -e ".[dev,dashboard]"
+          python -m spacy download en_core_web_sm
+      - run: python -c "import language_tool_python; language_tool_python.LanguageTool('en-US').close()"
+      - run: ruff check resumatch tests
+      - run: pytest tests/ -q

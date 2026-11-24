@@ -30,7 +30,7 @@ jobs:
 
       - name: Install
         run: |
-          pip install -e ".[dev,dashboard]"
+          pip install -c requirements-ci.txt -e ".[dev,dashboard]"
           python -m spacy download en_core_web_sm
 
       # First use downloads ~260 MB of LanguageTool. Doing it here keeps the
@@ -43,3 +43,11 @@ jobs:
 
       - name: Test
         run: pytest tests/ -q
+
+  # The one check branch protection requires, so matrix changes never strand a merge.
+  ci-ok:
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - run: test "${{ needs.test.result }}" = success
