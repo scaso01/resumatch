@@ -5,6 +5,9 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    allow:
+      # The default covers only pyproject.toml's packages; this also updates the rest of uv.lock.
+      - dependency-type: all
     groups:
       all-dependencies:
         patterns: ["*"]
