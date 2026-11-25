@@ -20,6 +20,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
+          cache-dependency-path: uv.lock
 
       # language-tool-python shells out to LanguageTool, which needs a JRE.
       # Without it the grammar component of the Presentation score is skipped.
@@ -28,9 +29,13 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      # uv.lock holds the exact versions CI tests, solved as one set so updates never conflict.
+      # --locked fails the run if pyproject.toml changed without re-running `uv lock`.
       - name: Install
         run: |
-          pip install -c requirements-ci.txt -e ".[dev,dashboard]"
+          pip install uv==0.12.22
+          uv export --locked --no-hashes --no-emit-project --all-extras -o "$RUNNER_TEMP/constraints.txt"
+          pip install -c "$RUNNER_TEMP/constraints.txt" -e ".[dev,dashboard]"
           python -m spacy download en_core_web_sm
 
       # First use downloads ~260 MB of LanguageTool. Doing it here keeps the
